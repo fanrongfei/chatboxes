@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>聊天室impower</title>
+<link rel="shortcut icon" href="favicon.png">
+<link rel="icon" href="favicon.png" type="image/x-icon">
+<link type="text/css" rel="stylesheet" href="css/style.css">
+<link rel="Stylesheet" type="text/css" href="css/loginDialog.css" />
+<script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+
+<body>
+
+<div id="LoginBox">
+        <div class="row1">
+            请输入您的昵称<a href="javascript:void(0)" title="关闭窗口" class="close_btn" id="closeBtn">×</a>
+        </div>
+        <div class="row">
+            昵称: <span class="inputBox">
+                <input type="text" id="txtName" />
+            </span><a href="javascript:void(0)" title="提示" class="warning" id="warn">*</a>
+        </div>
+        <div class="row">
+            <a href="#" id="loginbtn">确定</a>
+        </div>
+ </div>
+
+
+
+
+
+
+<div class="chatbox">
+  <div class="chat_top fn-clear">
+
+    <div class="logo"><img src="images/logo.png" width="190" height="60"  alt=""/>
+	
+	<marquee style="WIDTH: 600px; HEIGHT: 60px" scrollamount="15" align="top" ><p  style="text-align:center;heignt=60px;font-size:18px;color:#7E90A5;" id="p" >讲文明、树新风！tree new bee……</p>  </marquee >
+	
+	
+	</div> 
+	
+    <div class="uinfo fn-clear">
+      <div class="uface"><img src="images/11928.gif" id="pic" width="40" height="40"  alt=""/></div>
+      <div class="uname">
+       <span id="user"> 游客</span> 
+      </div>
+    </div>
+  </div>
+  <div class="chat_message fn-clear">
+    <div class="chat_left">
+      <div class="message_box" id="message_box">
+
+
+      </div>
+      <div class="write_box">
+        <textarea id="message" name="message" class="write_area" placeholder="说点啥吧..."></textarea>
+        <input type="hidden" name="fromname" id="fromname" value="河图" />
+        <input type="hidden" name="to_uid" id="to_uid" value="0">
+        <div class="facebox fn-clear">
+          <div class="expression"></div>
+          <div class="chat_type" id="chat_type">群聊</div>
+          <button name="" class="sub_but">提 交</button>
+        </div>
+      </div>
+    </div>
+    <div class="chat_right">
+      <ul class="user_list" title="">
+	
+      </ul>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+var username="";
+$(document).ready(function(e) {
+	$('#message_box').scrollTop($("#message_box")[0].scrollHeight + 20);
+	$('.uname').hover(
+	    function(){
+		    $('.managerbox').stop(true, true).slideDown(100);
+	    },
+		function(){
+		    $('.managerbox').stop(true, true).slideUp(100);
+		}
+	);
+	
+	
+	/*提交按钮事件*/
+	$('.sub_but').click(function(event){ 
+		sendMessage();	
+	});
+	
+	/*按下按钮或键盘按键*/
+	$("#message").keydown(function(event){
+		var e = window.event || event;
+        var k = e.keyCode || e.which || e.charCode;
+		if(k == 13 || k == 10){
+			sendMessage();
+		}
+	});
+});
+
+
+
+
+
+/* websocket 发送事件*/
+var sock = null;
+var wsuri = "ws://lxycomquak.yicp.io/echo";
+		window.onload = function() {
+			sock = new WebSocket(wsuri);
+			sock.onopen = function() {
+				console.log("connected to " + wsuri);
+			}
+			sock.onclose = function(e) {
+				console.log("connection closed (" + e.code + ")");
+			}
+			sock.onmessage = function(e) {	
+			var reArr=e.data.split("&%&");	
+			if (reArr[0]=="Line"){
+				$(".user_list").html("");
+				$(".user_list").append(reArr[1]);
+			}else if (reArr[0]=="up"){
+				$("#pic").attr('src',reArr[1]); 
+			}else if (reArr[0]=="reply"){
+				 var htmlData ='<div class="msg_item fn-clear">'
+                   + '   <div class="uface"><img src='+reArr[2]+' width="40" height="40"  alt=""/></div>'
+			       + '   <div class="item_right">'
+			       + '     <div class="msg own">' + reArr[1] + '</div>'
+			       + '     <div class="name_time">'+reArr[3]+'.'+reArr[4]+'</div>'
+			       + '   </div>'
+			       + '</div>';			
+	              $("#message_box").append(htmlData);	
+				  $("#message_box").scrollTop($("#message_box")[0].scrollHeight + 20);
+			}else if (reArr[0]=="Oneline"){
+				$("#p").text(reArr[1]);
+                 setInterval (clearText(), 3000);
+			}else if (reArr[0]=="offline"){
+				$("#p").text(reArr[1]);
+                setInterval (clearText(), 3000);
+			}									
+			}
+            function clearText() {
+                $("#p").text("讲文明、树新风！tree new bee……");
+            }
+		//删除图层
+			$(".close_btn").hover(function () { $(this).css({ color: 'black' }) }, function () { $(this).css({ color: '#999' }) }).on('click', function () {
+			$("#LoginBox").fadeOut("fast");
+			$("#mask").css({ display: 'none' });
+		    });
+		//昵称提交
+		$("#loginbtn").on('click', function () {
+			var txtName = $("#txtName").val();
+			if (txtName == "" || txtName == undefined || txtName == null) {		
+					$(".warning").css({ display: 'block' });
+					return;
+				}else {
+					$("#warn").css({ display: 'block' });
+					$(".warning").css({ display: 'none' });
+				}
+			//长度不能大于六
+	       var len=txtName.length;
+	       if(len>6){
+		     alert("昵称长度不能大于6");
+		         return;
+	           }
+			username=txtName;
+			$("#user").text(username);
+			sock.send("@@:="+username);
+			//图层消失
+			$("#LoginBox").fadeOut("fast");
+			$("#mask").css({ display: 'none' });
+							
+		});
+			
+		};
+
+//发送消息
+var sign=0;		
+function sendMessage(){
+		//过滤是否输过昵称
+		if (username == "" || username == undefined || username == null){
+			$("body").append("<div id='mask'></div>");
+			$("#mask").addClass("mask").fadeIn("slow");
+			$("#LoginBox").fadeIn("slow");
+			return;
+		}
+    var msg = $("#message").val();
+	    msg = msg.replace(/^\s+|\s+$/g,"");
+	if (msg==""){
+		sign++;
+		if (sign>=4){
+			alert("输入内容不能为空！");
+		}
+		return;	
+	}
+	sign=0;
+	sock.send("qq:="+msg);	
+	$("#message").val("");
+	return
+}
+</script>
+</body>
+</html>
