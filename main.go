@@ -30,14 +30,14 @@ func main() {
 	if IP == "" {
 		panic("Failure to start the service")
 	}
-	//UpdateWsHost(IP)
+	UpdateWsHost(IP)
 	fmt.Println("Listening and Serving on " + IP + ":8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic("ListenAndServe: " + err.Error())
 	}
 }
 func UpdateWsHost(IP string) {
-	var viewPath = "./views/index.html"
+	var viewPath = "./views/index1.html"
 	f, err := os.Open(viewPath)
 	if err != nil {
 		return
