@@ -26,7 +26,7 @@ func main() {
 	})
 
 	//IP := GetLocalIP()
-	IP:="10.5.164.115"
+	IP:="0.0.0.0"
 	if IP == "" {
 		panic("Failure to start the service")
 	}
