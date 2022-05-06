@@ -25,8 +25,8 @@ func main() {
 		http.ServeFile(w, r, "./views/index1.html")
 	})
 
-	//IP := GetLocalIP()
-	IP:="0.0.0.0"
+	IP := GetLocalIP()
+	//IP:="0.0.0.0"
 	if IP == "" {
 		panic("Failure to start the service")
 	}
